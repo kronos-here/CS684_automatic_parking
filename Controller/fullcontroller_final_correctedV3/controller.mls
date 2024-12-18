@@ -1,0 +1,225 @@
+type st = St_RTurn|St_RSwi|St_Order|St_LTurn|St_LSwi|St_Fwdimpulse|St_Forward
+const kp = 0.120000
+const ki = 0.080000
+const kd = 0.010000
+const max_velocity = 200.000000
+const turntime = 2
+const swiveltime = 1
+node find_velocities(speed : int) returns (v_l : int; v_r : int)
+var v : bool; v_1 : bool; v_2 : bool; v_3 : int; v_4 : int; v_5 : int;
+    v_6 : int; v_7 : int; v_8 : int;
+let
+  v_r = if v then 250 else v_8;
+  v_l = if v then 0 else v_7;
+  v_8 = if v_1 then 0 else v_6;
+  v_7 = if v_1 then 250 else v_5;
+  v_6 = if v_2 then v_3 else 250;
+  v_5 = if v_2 then 250 else v_4;
+  v_4 = (250 - speed);
+  v_3 = (250 + speed);
+  v_2 = (speed < 0);
+  v_1 = (speed < ~-(250));
+  v = (speed > 250)
+tel
+
+node adacrus(left_wl : int; center_wl : int; right_wl : int; comms : int)
+returns (v_l : int; v_r : int; nod : bool)
+var speed : int; integration_error : int; difference_error : int;
+    error : int; pnr : bool; nr : bool; r : bool; ns : st; s : st; v : bool;
+    v_9 : bool; v_10 : bool; v_11 : bool; v_12 : bool; v_13 : bool;
+    v_14 : int; v_15 : bool; v_16 : bool; v_17 : bool; v_18 : bool;
+    v_19 : int; v_20 : int; v_21 : int; v_22 : int; v_23 : int; v_24 : int;
+    v_25 : int; v_26 : bool; v_27 : int; v_28 : int; v_29 : bool; v_30 : int;
+    v_31 : int; v_32 : bool; v_33 : int; ck_1 : st; v_l_St_Forward : int;
+    v_r_St_Forward : int; ns_St_Forward : st; nr_St_Forward : bool;
+    v_l_St_Order : int; v_r_St_Order : int; ns_St_Order : st;
+    nr_St_Order : bool; v_l_St_LTurn : int; v_r_St_LTurn : int;
+    ns_St_LTurn : st; nr_St_LTurn : bool; v_l_St_RTurn : int;
+    v_r_St_RTurn : int; ns_St_RTurn : st; nr_St_RTurn : bool;
+    v_l_St_LSwi : int; v_r_St_LSwi : int; ns_St_LSwi : st; nr_St_LSwi : bool;
+    v_l_St_RSwi : int; v_r_St_RSwi : int; ns_St_RSwi : st; nr_St_RSwi : bool;
+    v_l_St_Fwdimpulse : int; v_r_St_Fwdimpulse : int; ns_St_Fwdimpulse : st;
+    nr_St_Fwdimpulse : bool; t : int; v_74 : bool; v_75 : bool; v_76 : bool;
+    v_77 : int; v_78 : int; t_1 : int; v_69 : bool; v_70 : bool; v_71 : bool;
+    v_72 : int; v_73 : int; t_2 : int; v_64 : bool; v_65 : bool; v_66 : bool;
+    v_67 : int; v_68 : int; t_3 : int; v_59 : bool; v_60 : bool; v_61 : bool;
+    v_62 : int; v_63 : int; t_4 : int; v_50 : bool; v_51 : bool; v_52 : bool;
+    v_53 : bool; v_54 : bool; v_55 : bool; v_56 : bool; v_57 : int;
+    v_58 : int; ck : st; s_St_Forward : st; r_St_Forward : bool;
+    s_St_Order : st; r_St_Order : bool; s_St_LTurn : st; r_St_LTurn : bool;
+    s_St_RTurn : st; r_St_RTurn : bool; s_St_LSwi : st; r_St_LSwi : bool;
+    s_St_RSwi : st; r_St_RSwi : bool; s_St_Fwdimpulse : st;
+    r_St_Fwdimpulse : bool; v_34 : bool; v_35 : bool; v_36 : bool;
+    v_37 : bool; v_38 : bool; v_39 : bool; v_40 : st; v_41 : bool; v_42 : st;
+    v_43 : bool; v_44 : st; v_45 : bool; v_46 : st; v_47 : bool; v_48 : st;
+    v_49 : bool;
+let
+  pnr = false fby nr;
+  ck_1 = s;
+  (v_l_St_Forward, v_r_St_Forward) =
+    find_velocities((speed when St_Forward(ck_1)));
+  nr_St_Forward = false;
+  ns_St_Forward = St_Forward;
+  v_r_St_Order = 0;
+  v_l_St_Order = 0;
+  nr_St_Order = false;
+  ns_St_Order = St_Order;
+  t = if v_76 then 0 else v_78;
+  v_78 = (v_77 + 1);
+  v_77 = pre t;
+  v_76 = if v_75 then true else (r when St_LTurn(ck_1));
+  v_75 = true fby false;
+  v_r_St_LTurn = 200;
+  v_l_St_LTurn = 50;
+  nr_St_LTurn = if v_74 then true else false;
+  ns_St_LTurn = if v_74 then St_Forward else St_LTurn;
+  v_74 = (t = turntime);
+  t_1 = if v_71 then 0 else v_73;
+  v_73 = (v_72 + 1);
+  v_72 = pre t_1;
+  v_71 = if v_70 then true else (r when St_RTurn(ck_1));
+  v_70 = true fby false;
+  v_r_St_RTurn = 50;
+  v_l_St_RTurn = 200;
+  nr_St_RTurn = if v_69 then true else false;
+  ns_St_RTurn = if v_69 then St_Forward else St_RTurn;
+  v_69 = (t_1 = turntime);
+  t_2 = if v_66 then 0 else v_68;
+  v_68 = (v_67 + 1);
+  v_67 = pre t_2;
+  v_66 = if v_65 then true else (r when St_LSwi(ck_1));
+  v_65 = true fby false;
+  v_r_St_LSwi = 200;
+  v_l_St_LSwi = ~-(200);
+  nr_St_LSwi = if v_64 then true else false;
+  ns_St_LSwi = if v_64 then St_Fwdimpulse else St_LSwi;
+  v_64 = (t_2 = swiveltime);
+  t_3 = if v_61 then 0 else v_63;
+  v_63 = (v_62 + 1);
+  v_62 = pre t_3;
+  v_61 = if v_60 then true else (r when St_RSwi(ck_1));
+  v_60 = true fby false;
+  v_r_St_RSwi = ~-(200);
+  v_l_St_RSwi = 200;
+  nr_St_RSwi = if v_59 then true else false;
+  ns_St_RSwi = if v_59 then St_Fwdimpulse else St_RSwi;
+  v_59 = (t_3 = swiveltime);
+  t_4 = if v_56 then 0 else v_58;
+  v_58 = (v_57 + 1);
+  v_57 = pre t_4;
+  v_56 = if v_55 then true else (r when St_Fwdimpulse(ck_1));
+  v_55 = true fby false;
+  v_r_St_Fwdimpulse = if v_54 then 200 else 0;
+  v_54 = if v_53 then true else (r when St_Fwdimpulse(ck_1));
+  v_53 = true fby false;
+  v_l_St_Fwdimpulse = if v_52 then 200 else 0;
+  v_52 = if v_51 then true else (r when St_Fwdimpulse(ck_1));
+  v_51 = true fby false;
+  nr_St_Fwdimpulse = if v_50 then true else false;
+  ns_St_Fwdimpulse = if v_50 then St_Order else St_Fwdimpulse;
+  v_50 = (t_4 = 1);
+  v_l =
+    merge ck_1
+      (St_Fwdimpulse -> v_l_St_Fwdimpulse)(St_RSwi -> v_l_St_RSwi)
+      (St_LSwi -> v_l_St_LSwi)(St_RTurn -> v_l_St_RTurn)
+      (St_LTurn -> v_l_St_LTurn)(St_Order -> v_l_St_Order)
+      (St_Forward -> v_l_St_Forward);
+  v_r =
+    merge ck_1
+      (St_Fwdimpulse -> v_r_St_Fwdimpulse)(St_RSwi -> v_r_St_RSwi)
+      (St_LSwi -> v_r_St_LSwi)(St_RTurn -> v_r_St_RTurn)
+      (St_LTurn -> v_r_St_LTurn)(St_Order -> v_r_St_Order)
+      (St_Forward -> v_r_St_Forward);
+  ns =
+    merge ck_1
+      (St_Fwdimpulse -> ns_St_Fwdimpulse)(St_RSwi -> ns_St_RSwi)
+      (St_LSwi -> ns_St_LSwi)(St_RTurn -> ns_St_RTurn)
+      (St_LTurn -> ns_St_LTurn)(St_Order -> ns_St_Order)
+      (St_Forward -> ns_St_Forward);
+  nr =
+    merge ck_1
+      (St_Fwdimpulse -> nr_St_Fwdimpulse)(St_RSwi -> nr_St_RSwi)
+      (St_LSwi -> nr_St_LSwi)(St_RTurn -> nr_St_RTurn)
+      (St_LTurn -> nr_St_LTurn)(St_Order -> nr_St_Order)
+      (St_Forward -> nr_St_Forward);
+  ck = St_Forward fby ns;
+  r_St_Forward =
+    if (nod when St_Forward(ck)) then true else (pnr when St_Forward(ck));
+  s_St_Forward = if (nod when St_Forward(ck)) then St_Order else St_Forward;
+  r_St_Order = if v_34 then true else v_49;
+  s_St_Order = if v_34 then St_Forward else v_48;
+  v_49 = if v_35 then true else v_47;
+  v_48 = if v_35 then St_LTurn else v_46;
+  v_47 = if v_36 then true else v_45;
+  v_46 = if v_36 then St_RTurn else v_44;
+  v_45 = if v_37 then true else v_43;
+  v_44 = if v_37 then St_LSwi else v_42;
+  v_43 = if v_38 then true else v_41;
+  v_42 = if v_38 then St_RSwi else v_40;
+  v_41 = if v_39 then true else (pnr when St_Order(ck));
+  v_40 = if v_39 then St_Fwdimpulse else St_Order;
+  v_39 = ((comms when St_Order(ck)) = 6);
+  v_38 = ((comms when St_Order(ck)) = 5);
+  v_37 = ((comms when St_Order(ck)) = 4);
+  v_36 = ((comms when St_Order(ck)) = 3);
+  v_35 = ((comms when St_Order(ck)) = 2);
+  v_34 = ((comms when St_Order(ck)) = 1);
+  r_St_LTurn = (pnr when St_LTurn(ck));
+  s_St_LTurn = St_LTurn;
+  r_St_RTurn = (pnr when St_RTurn(ck));
+  s_St_RTurn = St_RTurn;
+  r_St_LSwi = (pnr when St_LSwi(ck));
+  s_St_LSwi = St_LSwi;
+  r_St_RSwi = (pnr when St_RSwi(ck));
+  s_St_RSwi = St_RSwi;
+  r_St_Fwdimpulse = (pnr when St_Fwdimpulse(ck));
+  s_St_Fwdimpulse = St_Fwdimpulse;
+  s =
+    merge ck
+      (St_Fwdimpulse -> s_St_Fwdimpulse)(St_RSwi -> s_St_RSwi)
+      (St_LSwi -> s_St_LSwi)(St_RTurn -> s_St_RTurn)(St_LTurn -> s_St_LTurn)
+      (St_Order -> s_St_Order)(St_Forward -> s_St_Forward);
+  r =
+    merge ck
+      (St_Fwdimpulse -> r_St_Fwdimpulse)(St_RSwi -> r_St_RSwi)
+      (St_LSwi -> r_St_LSwi)(St_RTurn -> r_St_RTurn)(St_LTurn -> r_St_LTurn)
+      (St_Order -> r_St_Order)(St_Forward -> r_St_Forward);
+  speed = if v_32 then 0 else v_33;
+  v_33 = (1 * error);
+  v_32 = true fby false;
+  integration_error = if v_29 then 0 else v_31;
+  v_31 = (v_30 + error);
+  v_30 = pre integration_error;
+  v_29 = true fby false;
+  difference_error = if v_26 then error else v_28;
+  v_28 = (error - v_27);
+  v_27 = pre error;
+  v_26 = true fby false;
+  error = if v_12 then 0 else v_25;
+  v_25 = if v_13 then 0 else v_24;
+  v_24 = if v_17 then v_21 else v_23;
+  v_23 = (150 * v_22);
+  v_22 = (right_wl - left_wl);
+  v_21 = if v_18 then 0 else v_20;
+  v_20 = ~-(v_19);
+  v_19 = pre error;
+  v_18 = true fby false;
+  v_17 = (v_15 & v_16);
+  v_16 = (center_wl = 1);
+  v_15 = (v_14 = 0);
+  v_14 = (right_wl - left_wl);
+  v_13 = (center_wl = 0);
+  v_12 = true fby false;
+  nod = (v_10 & v_11);
+  v_11 = (left_wl = 0);
+  v_10 = (v & v_9);
+  v_9 = (center_wl = 0);
+  v = (right_wl = 0)
+tel
+
+node main(left_wl : int; center_wl : int; right_wl : int; comms : int)
+returns (v_l : int; v_r : int; nod : bool)
+let
+  (v_l, v_r, nod) = adacrus(left_wl, center_wl, right_wl, comms)
+tel
+

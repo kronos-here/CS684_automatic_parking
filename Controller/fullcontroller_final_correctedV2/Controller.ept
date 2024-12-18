@@ -1,0 +1,94 @@
+const kp: float = 0.12
+const ki: float = 0.08
+const kd: float = 0.01
+const max_velocity: float = 200.0
+const turntime: int = 2
+const swiveltime: int = 2
+
+node find_velocities(speed:int) returns (v_l, v_r: int)
+let
+	(v_l, v_r) = if (speed > 200) then (0, 200)
+		     else if (speed < -200) then (200, 0)
+		     else if (speed < 0) then (200 + speed, 200)
+		     else (200, 200 - speed);
+tel
+
+node  adacrus(left_wl, center_wl, right_wl, comms: int) returns (v_l, v_r: int; nod: bool)
+var error, difference_error, integration_error, speed: int;
+    
+let
+   error =  0 -> if (center_wl = 0) then 0 
+                 else if (((right_wl - left_wl) = 0) and (center_wl = 1)) then (0 -> pre(error)) 
+                 else (100 * (right_wl - left_wl));
+   difference_error = error -> error - pre(error);
+   integration_error = 0 -> pre(integration_error) + error;                            
+   
+   nod = ((right_wl = 1) and (center_wl = 1) and (left_wl = 1));
+   speed = 0 -> 1* error;
+
+       automaton
+	        state Forward
+                      do
+                         (v_l,v_r) = find_velocities(speed);
+                      until nod then Order
+                      
+	        state Order
+	              do 
+	                 v_l = 0;
+	                 v_r = 0;
+	              unless (nod and (comms = 1)) then Forward  
+	              |     (nod and (comms = 2)) then LTurn
+	              |     (nod and (comms = 3)) then RTurn
+	              |     (nod and (comms = 4)) then LSwi
+	              |     (nod and (comms = 5)) then RSwi
+	              |     (nod and (comms = 6)) then Fwdimpulse
+
+                                     
+                state LTurn
+                      var t: int;
+                      do     
+                         v_l = 50;
+                         v_r = 200;
+                         t = 0 -> pre(t) + 1;
+                      until (t = turntime) then Forward
+
+                state RTurn
+                      var t: int;
+                      do     
+                          v_l = 200;
+                          v_r = 50;
+                          t = 0 -> pre(t) + 1;
+                      until (t = turntime) then Forward
+                                     
+                state LSwi
+                      var t: int;
+                      do     
+                          v_l = -200;
+                          v_r =  200;
+                          t = 0 -> pre(t) + 1;
+                      until (t = swiveltime) then Fwdimpulse
+
+                state RSwi
+                      var t: int;
+                      do     v_l = 200;
+                             v_r = -200;
+                             t = 0 -> pre(t) + 1;
+                      until (t = swiveltime) then Fwdimpulse
+                         
+                state Fwdimpulse
+                      var t: int;
+                      do    v_l = 200 -> 0;
+                            v_r = 200 -> 0;
+                            t = 0 -> pre(t) + 1;
+                      until nod then Order
+                  
+       end
+                   
+tel
+
+node main(left_wl, center_wl, right_wl, comms: int) returns (v_l, v_r: int; nod: bool)
+let
+     (v_l, v_r, nod) = adacrus(left_wl, center_wl, right_wl, comms);
+tel
+
+
